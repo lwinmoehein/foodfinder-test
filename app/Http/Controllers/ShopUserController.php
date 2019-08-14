@@ -3,7 +3,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request; 
 use App\Http\Controllers\Controller; 
 use App\Shopuser; 
-use Illuminate\Support\Facades\Auth; 
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Database\QueryException;
 use Validator;
 use Illuminate\Support\Facades\Hash;
 class ShopUserController extends Controller 
@@ -40,21 +41,33 @@ public $successStatus = 200;
             'address'=>'required',
             'latitude'=>'required|numeric',
             'longitude'=>'required|numeric',
-            'phone_no' =>'required|regex:/(09)[0-9]{9}/'
+            'phone_no' =>'required|regex:/(09)[0-9]{9}/',
+            'shopcategory_id'=>'required|integer'
         ]);
 if ($validator->fails()) { 
             return response()->json(['error'=>$validator->errors()], 401);            
         }
-$input = $request->all(); 
+        $input = $request->all(); 
         $input['password'] = bcrypt($input['password']);
-        $user = Shopuser::where('email', request()->email)->first();
-        if(!$user){
-        $user = Shopuser::create($input);
-        $success['token'] =  $user->createToken('MyShopUser')-> accessToken; 
-        $success['name'] =  $user->name;
-return response()->json(['success'=>$success], $this-> successStatus); 
+        try {
+            $request->rank1=0;
+            $request->rank2=0;
+            $request->rank3=0;
+            $request->rank4=0;
+            $request->rank=0;
+            $user = Shopuser::where('email', request()->email)->first();
+            if(!$user){
+            $user = Shopuser::create($input);
+            $success['token'] =  $user->createToken('MyShopUser')-> accessToken; 
+            $success['name'] =  $user->name;
+            return response()->json(['success'=>$success], $this-> successStatus); 
+            }
+            return response()->json(['error'=>"email already exist"], $this-> successStatus); 
+        } catch (QueryException $e) {
+            return response()->json(['error'=>$e], 401); 
         }
-        return response()->json(['error'=>'email already exists'], 401); 
+        
+        
     }
 /** 
      * details api 
@@ -63,7 +76,8 @@ return response()->json(['success'=>$success], $this-> successStatus);
      */ 
     public function details() 
     { 
-        $user = Auth::guard('shopuser-api')->user(); 
+        $user = Auth::guard('shopuser-api')->user();
+        $user->shopcategory;
         return response()->json(['success' => $user], $this-> successStatus); 
     } 
 }

@@ -24,6 +24,10 @@ class CreateShopusersTable extends Migration
             $table->double("latitude");
             $table->double("longitude");
             $table->string("phone_no");
+            $table->string("citiy");
+            $table->unsignedBigInteger('shopcategory_id');
+            $table->foreign('shopcategory_id')->references('id')->on('shopcategories')->onDelete('cascade');
+            $table->foreign('city')->references('id')->on('shopcategories')->onDelete('cascade');
             $table->rememberToken();
             $table->timestamps();
         });

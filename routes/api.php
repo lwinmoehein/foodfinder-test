@@ -26,3 +26,10 @@ Route::post('shopuser/register', 'ShopUserController@register')->middleware('cli
 Route::group(['middleware' => 'auth:shopuser-api'], function(){
 Route::post('shopuser/details', 'ShopUserController@details');
 });
+
+Route::post('customer/login', 'CustomerController@login')->middleware('client');
+Route::post('customer/register', 'CustomerController@register')->middleware('client');
+Route::group(['middleware' => 'auth:customer'], function(){
+Route::post('customer/details', 'CustomerController@details');
+Route::resource('customer/rank','ShoprankController');
+});

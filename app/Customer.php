@@ -1,14 +1,15 @@
 <?php
 
 namespace App;
+
 use Laravel\Passport\HasApiTokens;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-class Shopuser extends Authenticatable
+
+class Customer extends Authenticatable
 {
     use HasApiTokens,Notifiable;
-    protected $guard='shopuser-api';
 
     /**
      * The attributes that are mass assignable.
@@ -16,7 +17,7 @@ class Shopuser extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'name', 'email', 'password','profile_url','address','latitude','longitude','phone_no','shopcategory_id'
+        'name', 'phone_no', 'password','profile_url'
     ];
 
     /**
@@ -28,16 +29,5 @@ class Shopuser extends Authenticatable
         'password', 'remember_token',
     ];
 
-    /**
-     * The attributes that should be cast to native types.
-     *
-     * @var array
-     */
-    protected $casts = [
-        'email_verified_at' => 'datetime',
-    ];
-    function shopcategory(){
-        return $this->belongsTo('App\Shopcategory');
-    }
     
 }
