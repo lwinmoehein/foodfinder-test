@@ -7,11 +7,11 @@ use Illuminate\Http\Request;
 use Illuminate\Database\QueryException;
 use App\Shoprank;
 use Illuminate\Support\Facades\Auth;
-use PhpParser\Node\Stmt\TryCatch;
 
 class ShoprankController extends Controller
 {
     public $successStatus = 200;
+    public $errorStatus = 401;
     /**
      * Display a listing of the resource.
      *
@@ -77,18 +77,6 @@ class ShoprankController extends Controller
     {
         //
     }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
-    }
-
     /**
      * Update the specified resource in storage.
      *
@@ -98,9 +86,21 @@ class ShoprankController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $request->validate([
+            'review' => 'required'
+        ]);
+        $shoprank=Shoprank::where('customer_id',Auth::guard('customer')->id())->find($id);
+        
+        if ($shoprank) {
+            $shoprank->review=$request->review;
+            $shoprank->save(); 
+            return response()->json(['data'=>$shoprank,'status'=>'update success'], $this->successStatus);            
+        }
+        return response()->json(['data'=>$shoprank,'status'=>'update error'], $this->errorStatus);            
     }
 
+    
+   
     /**
      * Remove the specified resource from storage.
      *
@@ -109,6 +109,13 @@ class ShoprankController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $shoprank=Shoprank::where('customer_id',Auth::guard('customer')->id())->find($id);
+        
+        if ($shoprank) {
+            $shoprank->delete(); 
+            return response()->json(['data'=>$shoprank,'status'=>'delete success'], $this->successStatus);            
+        }
+        return response()->json(['data'=>$shoprank,'status'=>'delete error'], $this->errorStatus);            
+
     }
 }

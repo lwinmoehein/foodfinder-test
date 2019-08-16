@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use App\Shopcategory;
+use App\Shopuser;
 
 class ShopUserTestController extends Controller
 {
@@ -58,17 +59,18 @@ class ShopUserTestController extends Controller
      */
     public function filter($searchkey)
     {
-       
-        $list=DB::table('shopcategories')
-        ->join('shopusers', 'shopcategories.id', '=', 'shopusers.shopcategory_id')
-        ->where('shopcategories.name','LIKE', $searchkey.'%')
-        ->get();
-        $l=DB::table('shopcategories')
-        ->join('shopusers', 'shopcategories.id', '=', 'shopusers.shopcategory_id')
-        ->whereRaw('MATCH (shopcategories.name) AGAINST (?   IN BOOLEAN MODE)',$searchkey)
-        ->get();
         
-        return json_encode($list);
+        $list=DB::table('shopusers')
+        ->select('shopusers.name','email','profile_url','address','latitude','longitude','phone_no','shopusers.rank1','shopusers.rank2','shopusers.rank3','shopusers.rank4','shopusers.rank'
+        ,'shopcategories.id as shopcategory_id','shopcategories.name as shopcategory_name'
+        ,'shop_cities.id as shopcity_id','shop_cities.township as shopcity_township')
+        ->join('shopcategories', 'shopcategories.id', '=', 'shopusers.shopcategory_id')
+        ->join('shop_cities', 'shop_cities.id', '=', 'shopusers.shop_cities_id')
+        ->whereRaw('MATCH (shopcategories.name) AGAINST (?   IN BOOLEAN MODE)',$searchkey)
+        ->paginate(20);
+        // $list=Shopuser::all();
+        // $list->shopcategory;
+        return response()->json($list);
     }
 
     /**

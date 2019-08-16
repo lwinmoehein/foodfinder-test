@@ -25,7 +25,7 @@ class Shopuser extends Authenticatable
      * @var array
      */
     protected $hidden = [
-        'password', 'remember_token',
+        'password', 'remember_token','shop_cities_id','	shopcategory_id'
     ];
 
     /**
@@ -38,6 +38,12 @@ class Shopuser extends Authenticatable
     ];
     function shopcategory(){
         return $this->belongsTo('App\Shopcategory');
+    }
+    function shopcity(){
+        return $this->belongsTo('App\ShopCity','shop_cities_id');
+    }
+    function shopranks(){
+        return $this->hasMany('App\Shoprank');
     }
     
 }

@@ -16,15 +16,24 @@ use Illuminate\Http\Request;
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
+
 Route::post('login', 'UserController@login')->middleware('client');
 Route::post('register', 'UserController@register')->middleware('client');
 Route::group(['middleware' => 'auth:api'], function(){
 Route::post('details', 'UserController@details');
 });
-Route::post('shopuser/login', 'ShopUserController@login')->middleware('client');
-Route::post('shopuser/register', 'ShopUserController@register')->middleware('client');
+
 Route::group(['middleware' => 'auth:shopuser-api'], function(){
 Route::post('shopuser/details', 'ShopUserController@details');
+});
+Route::group(['middleware' => 'client'], function(){
+    Route::post('shopuser/search', 'ShopUserController@filter');
+    Route::post('shopuser/register', 'ShopUserController@register');
+    Route::post('shopuser/login', 'ShopUserController@login');
+    Route::get('shopuser/{id}', 'ShopUserController@show');
+    Route::post('shopuser/ranklist', 'ShopUserController@showranklist');
+    
+
 });
 
 Route::post('customer/login', 'CustomerController@login')->middleware('client');
