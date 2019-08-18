@@ -23,15 +23,6 @@ class ShoprankController extends Controller
         //
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        
-    }
 
     /**
      * Store a newly created resource in storage.
@@ -41,13 +32,10 @@ class ShoprankController extends Controller
      */
     public function store(Request $request)
     {
-        $validator = Validator::make($request->all(), [  
+        $request->validate([
             'shopuser_id' => 'required|integer', 
             'rank' => 'required|integer|max:5|regex:/[1-5]{1}/',
         ]);
-        if ($validator->fails()) { 
-            return response()->json(['error'=>$validator->errors()], 401);            
-        }
         try {
             $shoprank=new Shoprank();
             $customer_id = Auth::guard('customer')->user()->id;
