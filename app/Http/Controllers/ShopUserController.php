@@ -39,7 +39,7 @@ class ShopUserController extends Controller
         $validator = Validator::make($request->all(), [ 
             'name' => 'required|max:100', 
             'email' => 'required|email', 
-            'password' => 'required', 
+            'password' => 'required|min:8', 
             'c_password' => 'required|same:password',
             'profile_url'=>'required|active_url',
             'address'=>'required',
@@ -87,8 +87,71 @@ class ShopUserController extends Controller
     }
 
     /**
+     * Update the specified resource in storage.
+     * Shop User's Information Change
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function infoupdate(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|max:100', 
+            'profile_url'=>'required|active_url',
+            'address'=>'required',
+            'latitude'=>'required|numeric',
+            'longitude'=>'required|numeric',
+            'phone_no' =>'required|regex:/(09)[0-9]{9}/',
+            'shopcategory_id'=>'required|integer'
+        ]);
+        $shopuser = Shopuser::find(Auth::guard('shopuser-api')->id());
+        $shopuser->name=$request->name;
+        $shopuser->profile_url=$request->profile_url;
+        $shopuser->address=$request->address;
+        $shopuser->latitude=$request->latitude;
+        $shopuser->longitude=$request->longitude;
+        $shopuser->phone_no=$request->phone_no;
+        $shopuser->shopcategory_id=$request->shopcategory_id;
+        if($shopuser){
+            try {
+                $shopuser->save();
+                return response()->json(['shop'=>$shopuser,"status"=>1,"status msg"=>"update success"]);
+            } catch (QueryException $e) {
+                return response()->json(['error'=>$e], 401); 
+            }
+          
+        }
+    }
+
+    /**
+     * Update the specified resource in storage.
+     * Shop user password change
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function passupdate(Request $request)
+    {
+        $request->validate([
+            'password' => 'required|min:8', 
+            'c_password' => 'required|same:password',
+        ]);
+        $shopuser = Shopuser::find(Auth::guard('shopuser-api')->id());
+        $shopuser->password=bcrypt($request->password);
+        if($shopuser){
+            try {
+                $shopuser->save();
+                return response()->json(['shop'=>$shopuser,"status"=>1,"status msg"=>"password change success"]);
+            } catch (QueryException $e) {
+                return response()->json(['error'=>$e], 401); 
+            }
+          
+        }
+    }
+
+    /**
      * Display the specified resource.
-     *
+     * get show detail
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
@@ -101,9 +164,9 @@ class ShopUserController extends Controller
         return response()->json(['data' => $user], $this-> successStatus); 
     }
 
-        /**
+    /**
      * Display the specified resource.
-     *
+     * get shop rank list paginate 
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */

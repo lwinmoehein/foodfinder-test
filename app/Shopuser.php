@@ -42,6 +42,9 @@ class Shopuser extends Authenticatable
     function shopcity(){
         return $this->belongsTo('App\ShopCity','shop_cities_id');
     }
+    function menus(){
+        return $this->hasMany('App\Menu');
+    }
     function shopranks(){
         return $this->hasMany('App\Shoprank');
     }

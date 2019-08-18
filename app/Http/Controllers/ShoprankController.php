@@ -12,6 +12,7 @@ class ShoprankController extends Controller
 {
     public $successStatus = 200;
     public $errorStatus = 401;
+    
     /**
      * Display a listing of the resource.
      *

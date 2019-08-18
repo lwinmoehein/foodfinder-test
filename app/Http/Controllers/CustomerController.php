@@ -70,5 +70,58 @@ return response()->json(['success'=>$success], $this-> successStatus);
         $user = Auth::guard('customer')->user();
         $user->shopcategory;
         return response()->json(['success' => $user], $this-> successStatus); 
-    } 
+    }
+
+        /**
+     * Update the specified resource in storage.
+     * Shop User's Information Change
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function infoupdate(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|max:100', 
+            'profile_url'=>'required|active_url',
+        ]);
+        $customer = Customer::find(Auth::guard('customer')->id());
+        $customer->name=$request->name;
+        $customer->profile_url=$request->profile_url;
+        if($customer){
+            try {
+                $customer->save();
+                return response()->json(['shop'=>$customer,"status"=>1,"status msg"=>"update success"]);
+            } catch (QueryException $e) {
+                return response()->json(['error'=>$e], 401); 
+            }
+          
+        }
+    }
+
+    /**
+     * Update the specified resource in storage.
+     * Shop user password change
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function passupdate(Request $request)
+    {
+        $request->validate([
+            'password' => 'required|min:8', 
+            'c_password' => 'required|same:password',
+        ]);
+        $customer = Customer::find(Auth::guard('customer')->id());
+        $customer->password=bcrypt($request->password);
+        if($customer){
+            try {
+                $customer->save();
+                return response()->json(['shop'=>$customer,"status"=>1,"status msg"=>"password change success"]);
+            } catch (QueryException $e) {
+                return response()->json(['error'=>$e], 401); 
+            }
+          
+        }
+    }
 }
