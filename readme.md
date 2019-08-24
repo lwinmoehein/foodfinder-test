@@ -27,4 +27,4 @@ Headers{
 ## Step 2 (You have access_token)
 ### Request followin API
 
-[Customer API](https://link)
+[Customer API](https://raw.githubusercontent.com/kywthiha/foodfindermm/master/doc/customerapidoc.md)
