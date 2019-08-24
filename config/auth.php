@@ -40,17 +40,13 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
-        'shopuser-web' => [
-            'driver' => 'session',
-            'provider' => 'shopusers',
-        ],
         'api' => [
             'driver' => 'passport',
             'provider' => 'users',
         ],
-        'shopuser-api' => [
+        'shop' => [
             'driver' => 'passport',
-            'provider' => 'shopusers',
+            'provider' => 'shops',
         ],
         'customer' => [
             'driver' => 'passport',
@@ -80,7 +76,7 @@ return [
             'driver' => 'eloquent',
             'model' => App\User::class,
         ],
-        'shopusers' => [
+        'shops' => [
             'driver' => 'eloquent',
             'model' => App\Shopuser::class,
         ],

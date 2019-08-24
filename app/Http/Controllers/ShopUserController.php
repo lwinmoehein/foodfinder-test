@@ -12,6 +12,7 @@ use Validator;
 use Illuminate\Support\Facades\Hash;
 class ShopUserController extends Controller 
 {
+    private $scope='shop';
     public $successStatus = 200;
     private $pagno=20;
     /** 
@@ -29,7 +30,7 @@ class ShopUserController extends Controller
             return response()->json(['error'=>'email does not exit'], 401); 
         }
         if(Hash::check($request->password, $user->password)){ 
-            $success['token'] =  $user->createToken('My306695ShopUser725')-> accessToken; 
+            $success['token'] =  $user->createToken('My306695ShopUser725',[$this->scope])-> accessToken; 
             return response()->json(['success' => $success], $this-> successStatus); 
         } 
         else{ 
@@ -72,7 +73,7 @@ class ShopUserController extends Controller
             $user->shopcategory_id=$request->shopcategory_id;
             $user->shop_cities_id=$request->shop_cities_id;
             $user->save();
-            $success['token'] =  $user->createToken('My306695ShopUser725')-> accessToken; 
+            $success['token'] =  $user->createToken('My306695ShopUser725',[$this->scope])-> accessToken; 
             $success['name'] =  $user->name;
             return response()->json(['success'=>$success], $this-> successStatus); 
             }
@@ -90,7 +91,7 @@ class ShopUserController extends Controller
      */ 
     public function details() 
     { 
-        $user = Auth::guard('shopuser-api')->user();
+        $user = Auth::guard('shop')->user();
         $user->shopcategory;
         $user->shopcity;
         return response()->json(['data' => $user], $this-> successStatus); 

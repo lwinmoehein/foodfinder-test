@@ -26,6 +26,12 @@ class AuthServiceProvider extends ServiceProvider
     {
         $this->registerPolicies();
 
+        Passport::enableImplicitGrant();
+
+        Passport::tokensCan([
+            'shop'=>'shop access',
+            'customer' => 'customer access',
+        ]);
         Passport::routes();
     }
 }

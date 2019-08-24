@@ -13,16 +13,7 @@ class ShoprankController extends Controller
     public $successStatus = 200;
     public $errorStatus = 401;
     
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index()
-    {
-        //
-    }
-
+    
 
     /**
      * Store a newly created resource in storage.
@@ -49,23 +40,16 @@ class ShoprankController extends Controller
         }
        
         if ($shoprank) { 
-            return response()->json(['success'=>$shoprank], $this->successStatus);            
+            $success['shoprank']=$shoprank;
+            $success['stauts']=1;
+            $success['msg']='success';
+            return response()->json(['data'=>$success], $this->successStatus);            
         }
 
 
 
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
-    {
-        //
-    }
     /**
      * Update the specified resource in storage.
      *
@@ -82,10 +66,13 @@ class ShoprankController extends Controller
         
         if ($shoprank) {
             $shoprank->review=$request->review;
-            $shoprank->save(); 
-            return response()->json(['data'=>$shoprank,'status'=>'update success'], $this->successStatus);            
+            $shoprank->save();
+            $success['shoprank']=$shoprank;
+            $success['stauts']=1;
+            $success['msg']='success'; 
+            return response()->json(['data'=>$success], $this->successStatus);            
         }
-        return response()->json(['data'=>$shoprank,'status'=>'update error'], $this->errorStatus);            
+        return response()->json(['error'=>"shop rank does not exit",'status'=>'update error'], $this->errorStatus);            
     }
 
     

@@ -8,7 +8,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 class Shopuser extends Authenticatable
 {
     use HasApiTokens,Notifiable;
-    protected $guard='shopuser-api';
+    protected $guard='shop';
 
     /**
      * The attributes that are mass assignable.

@@ -1,80 +1,82 @@
 <?php
 
 namespace App\Http\Controllers;
+
 use Illuminate\Http\Request; 
 use App\Http\Controllers\Controller; 
-use App\Customer; 
-use Illuminate\Support\Facades\Auth; 
-use Validator;
+use App\Customer;
+use Illuminate\Database\QueryException;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+
 class CustomerController extends Controller
 {
-    public $successStatus = 200;
-/** 
+    private $error_auth_status=401;
+    private $customerTokenName='customer';
+    private $scope='customer';
+
+    /** 
      * login api 
-     * 
      * @return \Illuminate\Http\Response 
      */ 
     public function login(Request $request){ 
-        $validator = Validator::make($request->all(), [ 
+        $request->validate([
             'phone_no' =>'required|regex:/(09)[0-9]{9}/',
             'password' => 'required|min:8',
         ]);
-if ($validator->fails()) { 
-            return response()->json(['error'=>$validator->errors()], 401);            
-        }
-        $user = Customer::where('phone_no', request()->phone_no)->first();
-        if($user && Hash::check(request()->password, $user->password)){ 
-            $success['token'] =  $user->createToken('MyCustomer')-> accessToken; 
-            return response()->json(['success' => $success], $this-> successStatus); 
+
+        $customer = Customer::where('phone_no', $request->phone_no)->first();
+        if($customer && Hash::check(request()->password, $customer->password)){
+            $success['token'] =  $customer->createToken($this->customerTokenName,[$this->scope])-> accessToken;
+            $success['customer'] =  $customer;
+            return response()->json(['data' => $success]); 
         } 
         else{ 
-            return response()->json(['error'=>'Unauthorised'], 401); 
+            return response()->json(['error'=>'Wrong Password !! Unauthorised'], $this->error_auth_status); 
         } 
     }
-/** 
+    /** 
      * Register api 
-     * 
      * @return \Illuminate\Http\Response 
      */ 
     public function register(Request $request) 
     { 
-        $validator = Validator::make($request->all(), [ 
+        $request->validate([
             'name' => 'required|max:100', 
             'password' => 'required', 
             'c_password' => 'required|same:password',
             'profile_url'=>'required|active_url',
             'phone_no' =>'required|regex:/(09)[0-9]{9}/',
         ]);
-if ($validator->fails()) { 
-            return response()->json(['error'=>$validator->errors()], 401);            
+        $customer = Customer::where('phone_no', $request->phone_no)->first();
+        if(!$customer){
+            $customer=new Customer();
+            $customer->name=$request->name;
+            $customer->password = bcrypt($request->password);
+            $customer->profile_url=$request->profile_url;
+            $customer->phone_no=$request->phone_no;
+            $customer->save();
+            $success['token'] =  $customer->createToken($this->customerTokenName,[$this->scope])-> accessToken; 
+            $success['customer'] =  $customer;
+            return response()->json(['data'=>$success]); 
         }
-$input = $request->all(); 
-        $input['password'] = bcrypt($input['password']);
-        $user = Customer::where('phone_no', request()->phone_no)->first();
-        if(!$user){
-        $user = Customer::create($input);
-        $success['token'] =  $user->createToken('MyCustomer')-> accessToken; 
-        $success['name'] =  $user->name;
-return response()->json(['success'=>$success], $this-> successStatus); 
-        }
-        return response()->json(['error'=>'phone no already exists'], 401); 
+        return response()->json(['error'=>'phone no already exists'],$this->error_auth_status); 
     }
-/** 
+
+    /** 
      * details api 
      * 
      * @return \Illuminate\Http\Response 
      */ 
     public function details() 
     { 
-        $user = Auth::guard('customer')->user();
-        $user->shopcategory;
-        return response()->json(['success' => $user], $this-> successStatus); 
+        $customer = Auth::guard('customer')->user();
+        return response()->json(['data' => $customer]); 
     }
 
         /**
      * Update the specified resource in storage.
-     * Shop User's Information Change
+     * Shop customer's Information Change
      * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
      * @return \Illuminate\Http\Response
@@ -91,7 +93,10 @@ return response()->json(['success'=>$success], $this-> successStatus);
         if($customer){
             try {
                 $customer->save();
-                return response()->json(['shop'=>$customer,"status"=>1,"status msg"=>"update success"]);
+                $success['customer'] =  $customer;
+                $success['status']=1;
+                $success['msg']='update success';
+                return response()->json(['data'=>$success]);
             } catch (QueryException $e) {
                 return response()->json(['error'=>$e], 401); 
             }
@@ -101,7 +106,7 @@ return response()->json(['success'=>$success], $this-> successStatus);
 
     /**
      * Update the specified resource in storage.
-     * Shop user password change
+     * Shop customer password change
      * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
      * @return \Illuminate\Http\Response
@@ -109,19 +114,23 @@ return response()->json(['success'=>$success], $this-> successStatus);
     public function passupdate(Request $request)
     {
         $request->validate([
-            'password' => 'required|min:8', 
-            'c_password' => 'required|same:password',
+            'old_password'=>'required|min:8',
+            'new_password' => 'required|min:8',
+            'c_password' => 'required|same:new_password',
         ]);
         $customer = Customer::find(Auth::guard('customer')->id());
-        $customer->password=bcrypt($request->password);
-        if($customer){
+        if($customer && Hash::check($request->old_password, $customer->password)){
             try {
+                $customer->password=bcrypt($request->new_password);
                 $customer->save();
-                return response()->json(['shop'=>$customer,"status"=>1,"status msg"=>"password change success"]);
+                $success['customer'] =  $customer;
+                $success['status']=1;
+                $success['msg']='password change success';
+                return response()->json(['data'=>$success]);
             } catch (QueryException $e) {
-                return response()->json(['error'=>$e], 401); 
+                return response()->json(['error'=>$e], $this->error_auth_status); 
             }
-          
         }
+        return response()->json(['error'=>'Wrong Password'], $this->error_auth_status); 
     }
 }

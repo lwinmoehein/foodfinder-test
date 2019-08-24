@@ -37,22 +37,12 @@ class MenurankController extends Controller
         }
        
         if ($menurank) { 
-            return response()->json(['success'=>$menurank], $this->successStatus);            
+            $success['menurank']=$menurank;
+            $success['status']=1;
+            $success['msg']='Rank Success';
+            return response()->json(['data'=>$success], $this->successStatus);            
         }
     }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
-    {
-        //
-    }
-
-    
 
     /**
      * Update the specified resource in storage.
