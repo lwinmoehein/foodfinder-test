@@ -1,6 +1,7 @@
 # Food Finder Backend API Documentaion
-## The first step, Your computer export sql file
-### Step 1 (Get client token)
+1. The first step, Your computer export sql file
+2. php artisan passport:install
+3. (Get client token)
 ```language
 request url: http://localhost:8000/oauth/token
 Method : POST
@@ -24,7 +25,7 @@ Headers{
 
 ```
 
-## Step 2 (You have access_token)
+4. (You have access_token)
 ### Request followin API
 
 [Customer API](doc/customerapidoc.md)
